@@ -31,7 +31,7 @@
             padding: 40px;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
             animation: slideUp 0.5s ease-out;
         }
@@ -61,6 +61,38 @@
         .header p {
             color: #666;
             font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #004a99;
+            border-bottom-color: #004a99;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .form-group {
@@ -122,6 +154,14 @@
             background: #ccc;
             cursor: not-allowed;
             transform: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 10px 25px rgba(220, 53, 69, 0.3);
         }
 
         .resultado {
@@ -201,6 +241,31 @@
             display: block;
         }
 
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
+
         .loading {
             display: none;
             text-align: center;
@@ -227,6 +292,43 @@
             100% { transform: rotate(360deg); }
         }
 
+        .reservas-list {
+            margin-top: 20px;
+        }
+
+        .reserva-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #004a99;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .reserva-item strong {
+            color: #004a99;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .reserva-item small {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 25px;
@@ -235,6 +337,14 @@
             .header h1 {
                 font-size: 24px;
             }
+
+            .tabs {
+                overflow-x: auto;
+            }
+
+            .tab {
+                white-space: nowrap;
+            }
         }
     </style>
 </head>
@@ -242,62 +352,100 @@
     <div class="container">
         <div class="header">
             <h1>🚗 Reserva de Corrida</h1>
-            <p>Preencha os dados para solicitar sua corrida</p>
+            <p>Sistema de agendamento com controle de horários</p>
         </div>
 
-        <form id="reservaForm">
-            <div class="form-group">
-                <label for="nome">Nome Completo</label>
-                <input type="text" id="nome" placeholder="Digite seu nome" required>
-                <span class="error" id="nomeError">Nome é obrigatório</span>
-            </div>
-
-            <div class="form-group">
-                <label for="doc">CPF ou CNPJ</label>
-                <input type="text" id="doc" placeholder="000.000.000-00" required>
-                <span class="error" id="docError">Documento inválido</span>
-            </div>
-
-            <div class="form-group">
-                <label for="origem">Endereço de Origem</label>
-                <input type="text" id="origem" placeholder="Ex: Rua das Flores, 123" required>
-                <span class="error" id="origemError">Origem é obrigatória</span>
-            </div>
-
-            <div class="form-group">
-                <label for="destino">Endereço de Destino</label>
-                <input type="text" id="destino" placeholder="Ex: Av. Principal, 456" required>
-                <span class="error" id="destinoError">Destino é obrigatório</span>
-            </div>
-
-            <div class="form-group">
-                <label for="dt">Data e Hora da Corrida</label>
-                <input type="datetime-local" id="dt" required>
-                <span class="error" id="dtError">Data e hora são obrigatórias</span>
-            </div>
-
-            <div class="form-group">
-                <label for="pag">Forma de Pagamento</label>
-                <select id="pag" required>
-                    <option value="pix">💳 Pix (Copia e Cola)</option>
-                    <option value="carro">💵 Pagamento no Carro</option>
-                </select>
-            </div>
-
-            <button type="submit" class="btn" id="submitBtn">Calcular e Reservar</button>
-        </form>
-
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Calculando distância...</p>
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('nova')">Nova Reserva</button>
+            <button class="tab" onclick="switchTab('listar')">Minhas Reservas</button>
+            <button class="tab" onclick="switchTab('gerenciar')">Gerenciar</button>
         </div>
 
-        <div class="resultado" id="resultado">
-            <h3>📋 Resumo da Reserva</h3>
-            <div id="resumoContent"></div>
-            <a href="#" class="whatsapp-btn" id="whatsappBtn" target="_blank">
-                📱 Confirmar via WhatsApp
-            </a>
+        <!-- ABA NOVA RESERVA -->
+        <div id="tab-nova" class="tab-content active">
+            <div class="alert alert-warning">
+                ⚠️ Reservas devem ser feitas com no mínimo 30 minutos de antecedência.
+            </div>
+
+            <form id="reservaForm">
+                <div class="form-group">
+                    <label for="nome">Nome Completo</label>
+                    <input type="text" id="nome" placeholder="Digite seu nome" required>
+                    <span class="error" id="nomeError">Nome é obrigatório</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="doc">CPF ou CNPJ</label>
+                    <input type="text" id="doc" placeholder="000.000.000-00" required>
+                    <span class="error" id="docError">Documento inválido</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="origem">Endereço de Origem</label>
+                    <input type="text" id="origem" placeholder="Ex: Rua das Flores, 123" required>
+                    <span class="error" id="origemError">Origem é obrigatória</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="destino">Endereço de Destino</label>
+                    <input type="text" id="destino" placeholder="Ex: Av. Principal, 456" required>
+                    <span class="error" id="destinoError">Destino é obrigatório</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="dt">Data e Hora da Corrida</label>
+                    <input type="datetime-local" id="dt" required>
+                    <span class="error" id="dtError">Data e hora são obrigatórias</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="pag">Forma de Pagamento</label>
+                    <select id="pag" required>
+                        <option value="pix">💳 Pix (Copia e Cola)</option>
+                        <option value="carro">💵 Pagamento no Carro</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn" id="submitBtn">Calcular e Reservar</button>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Calculando distância...</p>
+            </div>
+
+            <div class="resultado" id="resultado">
+                <h3>📋 Resumo da Reserva</h3>
+                <div id="resumoContent"></div>
+                <a href="#" class="whatsapp-btn" id="whatsappBtn" target="_blank">
+                    📱 Confirmar via WhatsApp
+                </a>
+            </div>
+        </div>
+
+        <!-- ABA LISTAR RESERVAS -->
+        <div id="tab-listar" class="tab-content">
+            <div id="minhasReservas"></div>
+        </div>
+
+        <!-- ABA GERENCIAR (MOTORISTA) -->
+        <div id="tab-gerenciar" class="tab-content">
+            <div class="alert alert-warning">
+                🔑 Área do Motorista - Digite a senha para acessar
+            </div>
+
+            <div id="senhaArea">
+                <div class="form-group">
+                    <label>Senha de Acesso</label>
+                    <input type="password" id="senhaMotorista" placeholder="Digite a senha">
+                </div>
+                <button class="btn" onclick="verificarSenha()">Acessar</button>
+            </div>
+
+            <div id="gerenciarArea" style="display: none;">
+                <h3 style="color: #004a99; margin-bottom: 20px;">📋 Todas as Reservas</h3>
+                <div id="todasReservas"></div>
+            </div>
         </div>
     </div>
 
@@ -305,10 +453,60 @@
         // CONFIGURAÇÕES - Substitua com suas chaves reais
         const CONFIG = {
             ORS_KEY: "5b3ce3597851110001cf62482c03cbe0d4604d36bd2d9ed799ba85bf",
-            PIX_KEY: "06398968638",
+            PIX_KEY: "d9f2c74c-4c4b-4a89-b071-f40fe777cf3a",
             MOTORISTA: "5547988818203",
-            VALOR_KM: 2.50
+            VALOR_KM: 2.50,
+            SENHA_MOTORISTA: "0401", // ALTERE ESTA SENHA!
+            TEMPO_MINIMO_ANTECEDENCIA: 30 // minutos
         };
+
+        // Sistema de armazenamento de reservas
+        const Storage = {
+            getReservas: function() {
+                const reservas = localStorage.getItem('reservas');
+                return reservas ? JSON.parse(reservas) : [];
+            },
+            
+            salvarReserva: function(reserva) {
+                const reservas = this.getReservas();
+                reservas.push({
+                    ...reserva,
+                    id: Date.now(),
+                    status: 'pendente'
+                });
+                localStorage.setItem('reservas', JSON.stringify(reservas));
+            },
+            
+            removerReserva: function(id) {
+                let reservas = this.getReservas();
+                reservas = reservas.filter(r => r.id !== id);
+                localStorage.setItem('reservas', JSON.stringify(reservas));
+            },
+            
+            verificarHorarioDisponivel: function(dataHora) {
+                const reservas = this.getReservas();
+                const novaData = new Date(dataHora);
+                
+                return !reservas.some(r => {
+                    const dataReserva = new Date(r.dataHora);
+                    const diff = Math.abs(novaData - dataReserva) / 60000; // diferença em minutos
+                    return diff < 60; // Bloqueia se tiver reserva 1h antes ou depois
+                });
+            }
+        };
+
+        // Troca de abas
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            
+            if (tab === 'listar') {
+                carregarMinhasReservas();
+            }
+        }
 
         // Formatação de documento
         document.getElementById('doc').addEventListener('input', function(e) {
@@ -327,6 +525,15 @@
         function validarDocumento(doc) {
             const numero = doc.replace(/\D/g, '');
             return numero.length === 11 || numero.length === 14;
+        }
+
+        // Validar tempo mínimo de antecedência
+        function validarTempoMinimo(dataHora) {
+            const agora = new Date();
+            const dataReserva = new Date(dataHora);
+            const diffMinutos = (dataReserva - agora) / 60000;
+            
+            return diffMinutos >= CONFIG.TEMPO_MINIMO_ANTECEDENCIA;
         }
 
         // Geocodificação
@@ -418,6 +625,22 @@
             if (!dt) {
                 document.getElementById('dtError').classList.add('show');
                 valido = false;
+            } else {
+                // Validar tempo mínimo de antecedência
+                if (!validarTempoMinimo(dt)) {
+                    document.getElementById('dtError').textContent = 
+                        `Reserva deve ser feita com no mínimo ${CONFIG.TEMPO_MINIMO_ANTECEDENCIA} minutos de antecedência`;
+                    document.getElementById('dtError').classList.add('show');
+                    valido = false;
+                }
+
+                // Verificar se horário está disponível
+                if (!Storage.verificarHorarioDisponivel(dt)) {
+                    document.getElementById('dtError').textContent = 
+                        'Este horário já está reservado. Escolha outro horário.';
+                    document.getElementById('dtError').classList.add('show');
+                    valido = false;
+                }
             }
 
             if (!valido) return;
@@ -440,8 +663,23 @@
                     ? `Pix: ${CONFIG.PIX_KEY}` 
                     : "Pagamento no carro";
 
+                // Salvar reserva
+                Storage.salvarReserva({
+                    nome,
+                    doc,
+                    origem,
+                    destino,
+                    dataHora: dt,
+                    distancia: distancia.toFixed(2),
+                    valor,
+                    pagamento
+                });
+
                 // Criar resumo
                 const resumoHTML = `
+                    <div class="alert alert-success">
+                        ✅ Horário reservado com sucesso!
+                    </div>
                     <div class="info-item">
                         <span class="info-label">Nome:</span>
                         <span class="info-value">${nome}</span>
@@ -480,7 +718,7 @@
 
                 // Criar mensagem para WhatsApp
                 const mensagem = 
-                    `*🚗 Reserva de Corrida*\n\n` +
+                    `*🚗 Nova Reserva de Corrida*\n\n` +
                     `👤 Nome: ${nome}\n` +
                     `📄 Documento: ${doc}\n` +
                     `📍 Origem: ${origem}\n` +
@@ -496,6 +734,9 @@
                 // Mostrar resultado
                 document.getElementById('resultado').classList.add('show');
 
+                // Limpar formulário
+                document.getElementById('reservaForm').reset();
+
             } catch (error) {
                 alert('Erro: ' + error.message);
             } finally {
@@ -504,10 +745,104 @@
             }
         });
 
-        // Definir data mínima como agora
-        const now = new Date();
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        document.getElementById('dt').min = now.toISOString().slice(0, 16);
-    </script>
-</body>
-</html>
+        // Carregar minhas reservas
+        function carregarMinhasReservas() {
+            const reservas = Storage.getReservas();
+            const container = document.getElementById('minhasReservas');
+            
+            if (reservas.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                        <p>Nenhuma reserva encontrada</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `<div class="reservas-list">` + 
+                reservas.map(r => `
+                    <div class="reserva-item">
+                        <strong>📅 ${new Date(r.dataHora).toLocaleString('pt-BR')}</strong>
+                        <div style="margin-top: 10px;">
+                            <small>📍 ${r.origem} → ${r.destino}</small><br>
+                            <small>👤 ${r.nome}</small><br>
+                            <small>💰 R$ ${r.valor} (${r.distancia} km)</small><br>
+                            <small>💳 ${r.pagamento}</small>
+                        </div>
+                    </div>
+                `).join('') + 
+            `</div>`;
+        }
+
+        // Verificar senha do motorista
+        function verificarSenha() {
+            const senha = document.getElementById('senhaMotorista').value;
+            
+            if (senha === CONFIG.SENHA_MOTORISTA) {
+                document.getElementById('senhaArea').style.display = 'none';
+                document.getElementById('gerenciarArea').style.display = 'block';
+                carregarTodasReservas();
+            } else {
+                alert('Senha incorreta!');
+            }
+        }
+
+        // Carregar todas as reservas (motorista)
+        function carregarTodasReservas() {
+            const reservas = Storage.getReservas();
+            const container = document.getElementById('todasReservas');
+            
+            if (reservas.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>Nenhuma reserva no sistema</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Ordenar por data
+            reservas.sort((a, b) => new Date(a.dataHora) - new Date(b.dataHora));
+
+            container.innerHTML = `<div class="reservas-list">` + 
+                reservas.map(r => `
+                    <div class="reserva-item">
+                        <strong>📅 ${new Date(r.dataHora).toLocaleString('pt-BR')}</strong>
+                        <div style="margin-top: 10px;">
+                            <small>📍 ${r.origem} → ${r.destino}</small><br>
+                            <small>👤 ${r.nome} (${r.doc})</small><br>
+                            <small>💰 R$ ${r.valor} (${r.distancia} km)</small><br>
+                            <small>💳 ${r.pagamento}</small>
+                        </div>
+                        <button class="btn btn-secondary" style="margin-top: 10px; padding: 8px;" onclick="cancelarReserva(${r.id})">
+                            Cancelar Reserva
+                        </button>
+                    </div>
+                `).join('') + 
+            `</div>`;
+        }
+
+        // Cancelar reserva (motorista)
+        function cancelarReserva(id) {
+            if (confirm('Deseja realmente cancelar esta reserva?')) {
+                Storage.removerReserva(id);
+                carregarTodasReservas();
+                alert('Reserva cancelada com sucesso!');
+            }
+        }
+
+        // Definir data mínima como agora + 30 minutos
+        function setMinDateTime() {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() + CONFIG.TEMPO_MINIMO_ANTECEDENCIA);
+            const formatted = now.toISOString().slice(0, 16);
+            document.getElementById('dt').min = formatted;
+        }
+
+        // Inicializar ao carregar a página
+        window.onload = function() {
+            setMinDateTime();
+        };
